@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import json
-
+from typing import Dict, List, Tuple
 
 class HeatmapGenerator:
     """heatmap клавиш с ошибками
@@ -11,9 +11,9 @@ class HeatmapGenerator:
         error_data (dict): Словарь, ключи которого - символы с ошибками, значения - количество ошибок
     """
     def __init__(self):
-        self.error_data = {}
+        self.error_data: Dict[str, int] = {}
 
-    def update_error_data(self, correct_word, user_input):
+    def update_error_data(self, correct_word: str, user_input: str) -> None:
         """Данные об ошибках, сравнивая правильное слово с вводом пользователя
 
                Args:
@@ -26,7 +26,7 @@ class HeatmapGenerator:
                     self.error_data[expected_char] = 0
                 self.error_data[expected_char] += 1
 
-    def generate_heatmap(self):
+    def generate_heatmap(self) -> str:
         # Сортировка словаря по значениям в порядке убывания и взятие первых трех элементов
         top_errors = sorted(self.error_data.items(), key=lambda item: item[1], reverse=True)[:3]
         heatmap = "Top 3 Keyboard Errors:\n"
@@ -44,7 +44,7 @@ class UserStats:
         self.filename = filename
         self.user_data = self.load_stats()
 
-    def load_stats(self):
+    def load_stats(self) -> Dict:
         """Пользовательская статистика из файла JSON
 
         Returns:
@@ -56,12 +56,12 @@ class UserStats:
         except FileNotFoundError:
             return {}
 
-    def save_stats(self):
+    def save_stats(self) -> None:
         """Текущая пользовательская статистика в файл JSON"""
         with open(self.filename, 'w') as file:
             json.dump(self.user_data, file, indent=4)
 
-    def update_stats(self, session_results):
+    def update_stats(self, session_results: Dict[str, int]) -> None:
         """Обновляем статистику сессии и сохраняем"""
         self.user_data['sessions'] = self.user_data.get('sessions', []) + [session_results]
         self.save_stats()
@@ -82,7 +82,7 @@ class TypingTrainer:
         words_amount (int): Количество введенных слов.
         word_list (list): Список слов для ввода.
     """
-    def __init__(self, master):
+    def __init__(self, master: Tk):
         self.master = master
         self.master.title("Typing Trainer Game")
         self.master.iconbitmap("icon.ico")
@@ -109,14 +109,14 @@ class TypingTrainer:
 
         self.master.bind("<Return>", self.play_game)
 
-    def load_words_from_files(self):
+    def load_words_from_files(self) -> None:
         filepath = r"C:\Users\Legion\PycharmProjects\TypingTrainer\.venv\sample.txt"
         with open(filepath, "r") as file:
             text = file.read()
             self.word_list = text.split()
 
 
-    def init_widgets(self):
+    def init_widgets(self) -> None:
         # Установка и расположение всех виджетов
         self.logoImage = PhotoImage(file="clock.png")
         self.logoLabel = Label(self.master, image=self.logoImage, bg="azure")
@@ -194,7 +194,7 @@ class TypingTrainer:
             self.end_game()
 
 
-    def play_game(self, event):
+    def play_game(self, event: Event) -> None:
         """ Обработка игры после ввода слова и нажатия клавиши Enter """
         user_input = self.wordEntry.get()
         if user_input:
@@ -209,13 +209,13 @@ class TypingTrainer:
             self.set_new_word()
             self.wordEntry.delete(0, END)
 
-    def update_heatmap_display(self):
+    def update_heatmap_display(self) -> None:
         """ Обновление тепловой карты после каждого случая ошибки """
         heatmap_info = self.heatmap_generator.generate_heatmap()
         self.heatmap_display.config(text=heatmap_info)
 
 
-    def check_word(self, word):
+    def check_word(self, word: str) -> None:
         """ Сверка напечатаного и дейтсвительного слова """
         if word == self.word_list_Label['text']:
             self.correct_word += 1
@@ -223,7 +223,7 @@ class TypingTrainer:
             self.wrong_word += 1
 
 
-    def set_new_word(self):
+    def set_new_word(self) -> None:
         """ Установка нового слова для ввода """
         if not self.word_list:
             self.instructionLabel.config(text="No words loaded!")
@@ -231,7 +231,7 @@ class TypingTrainer:
         random.shuffle(self.word_list)
         self.word_list_Label.config(text=self.word_list[0])
 
-    def end_game(self):
+    def end_game(self) -> None:
         """Завершает игровую сессию и обрабатывает результаты"""
         self.wordEntry.config(state=DISABLED)
         result = self.correct_word - self.wrong_word
@@ -255,7 +255,7 @@ class TypingTrainer:
             self.reset_game()
             self.attemtps += 1
 
-    def reset_game(self):
+    def reset_game(self) -> None:
         """ Обнуление параметров для повторной игры """
         self.i = 0
         self.words_amount = 0
